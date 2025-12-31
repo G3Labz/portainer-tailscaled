@@ -1,0 +1,49 @@
+name: portainer-tailscaled
+
+networks:
+  portainer_net:
+    driver: bridge
+
+services:
+  tailscale-portainer:
+    image: tailscale/tailscale:latest
+    hostname: ts-portainer
+    restart: always
+    environment:
+      - TS_AUTHKEY=tskey-auth-your-key-here
+      # - TS_EXTRA_ARGS=--advertise-tags=tag:container
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=true
+    volumes:
+      - ./tailscale/state:/var/lib/tailscale
+    ports:
+      - 9443:9443 # portainer https
+      - 9000:9000 # portainer http
+      - 8000:8000 # Remove if you do not intend to use Edge Agents
+    # devices:
+    #   - /dev/net/tun:/dev/net/tun
+    # cap_add:
+    #   - net_admin
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:lts
+    restart: always
+    network_mode: "service:tailscale-portainer"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer_data:/data
+
+  agent:
+    container_name: portainer_agent
+    image: portainer/agent:2.33.6
+    restart: always
+    networks:
+      - portainer_net
+    ports:
+      - 9001:9001
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+      # For rootless Docker, use: ~/.local/share/docker/volumes:/var/lib/docker/volumes
+      - /:/host
