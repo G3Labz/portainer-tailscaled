@@ -28,13 +28,13 @@ A Docker Compose setup that combines Portainer CE with Tailscale for secure, rem
 2. **Copy the example configuration:**
 
    ```bash
-   cp docker-compose.example.yml docker-compose.yml
+   cp compose.example.yml compose.yaml
    ```
 
-3. **Edit `docker-compose.yml` with your settings:**
+3. **Edit `compose.yaml` with your settings:**
 
    ```bash
-   nano docker-compose.yml
+   nano compose.yaml
    ```
 
    Update the following values:
